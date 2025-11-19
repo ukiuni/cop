@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+: "${MOCK_ARGS_FILE:?MOCK_ARGS_FILE is required}"
+printf '%s\n' "$@" >"${MOCK_ARGS_FILE}"
+echo "mock CLI output"
