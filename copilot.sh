@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+# version 1.1.0
 # This file is part of the Copilot CLI helper and is licensed under the MIT License.
 # See the accompanying LICENSE.md file for the full text.
 
@@ -144,9 +144,26 @@ history_output_file="${HISTORY_DIR}/${current_datetime}-history.md"
 
 history_instruction=$(cat <<EOF
 [History Logging Directive]
-After completing this request, record the detailed work history (steps performed, decisions, remaining tasks) in Markdown and save it to ${history_output_file} so future work can resume quickly.
+You MUST always add a detailed worklog of what you just did. Follow these rules without exception:
+1. Immediately after finishing the user request, summarize the exact actions you performed, key decisions, and any remaining follow-up tasks.
+2. Save that summary in valid Markdown to ${history_output_file}. Overwrite the file if it already exists.
+3. Use the following template exactly:
+
+  ## Summary
+  - ...
+
+  ## Decisions
+  - ...
+
+  ## Next steps
+  - ...
+
+4. If anything prevents writing the file, clearly state the reason in your response and stop.
+Failure to produce this history file is unacceptable - treat it as the final required step of the task.
 EOF
 )
+
+prompt=$(printf '%s\n\n%s\n' "$prompt" "$history_instruction")
 
 # Ensure the Copilot CLI is available; install globally if missing.
 if ! command -v "${COPILOT_CLI_COMMAND}" >/dev/null 2>&1; then
