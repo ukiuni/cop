@@ -35,17 +35,13 @@ list_history_files() {
     return
   fi
 
-  # Sort files by modification time (newest first) and limit to 10
+  # Sort files by modification time (newest first) using stat and sort
   local count=0
-  local -a sorted_files=()
-  while IFS= read -r file; do
-    sorted_files+=("$file")
-  done < <(ls -1t "${files[@]}" 2>/dev/null || true)
-  
-  for file in "${sorted_files[@]+"${sorted_files[@]}"}"; do
-    [[ $count -ge 10 ]] && break
-    printf '%s\n' "${file#${HISTORY_DIR}/}"
-    ((count++))
+  local file
+  for file in "${files[@]}"; do
+    printf '%s\t%s\n' "$(stat -f '%m' "$file" 2>/dev/null || stat -c '%Y' "$file" 2>/dev/null)" "$file"
+  done | sort -rn | head -n 10 | while IFS=$'\t' read -r mtime filepath; do
+    printf '%s\n' "${filepath#${HISTORY_DIR}/}"
   done
 }
 
