@@ -35,11 +35,18 @@ list_history_files() {
     return
   fi
 
+  # Sort files by modification time (newest first) and limit to 10
   local count=0
-  while IFS= read -r file && [[ $count -lt 10 ]]; do
+  local -a sorted_files=()
+  while IFS= read -r file; do
+    sorted_files+=("$file")
+  done < <(ls -1t "${files[@]}" 2>/dev/null || true)
+  
+  for file in "${sorted_files[@]+"${sorted_files[@]}"}"; do
+    [[ $count -ge 10 ]] && break
     printf '%s\n' "${file#${HISTORY_DIR}/}"
     ((count++))
-  done < <(ls -1t "${files[@]}")
+  done
 }
 
 get_latest_history_file() {
